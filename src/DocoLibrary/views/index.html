@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <title>Photo Library</title>
+	<meta charset="utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+</head>
+<body id="body" ng-controller="myCtrl" class="container-fluid">
+    <style>
+        #holder {
+            border: 5px dashed #ccc;
+            /*width: 150px;
+            min-height: 150px;*/
+            /*margin: 20px auto;*/
+            min-height: 122px;
+        }
+
+            #holder.hover {
+                border: 5px dashed #0c0;
+            }
+
+            #holder img {
+                display: block;
+                margin: 10px auto;
+            }
+
+            #holder p {
+                margin: 10px;
+                font-size: 14px;
+            }
+
+        progress {
+            width: 100%;
+        }
+
+            progress:after {
+                content: '%';
+            }
+
+        .fail {
+            background: #c00;
+            padding: 2px;
+            color: #fff;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <div id="images">
+        <div class="row" ng-repeat="rowNum in range( 0, items.length / 6 + 1 )">
+            <div class="col-sm-2" ng-repeat="n in range( 0, 6 < items.length - ( rowNum * 6 ) ? 6 : items.length - ( rowNum * 6 ) )">
+                <a href="{{items[n + rowNum * 6].url}}" target="_blank"><img class="center-block img-responsive img-thumbnail" src="{{items[n + rowNum * 6].url}}" /></a>
+                <div class="text-center">{{items[n + rowNum * 6].name}}</div>
+            </div>
+
+            <article ng-if="$last" class="col-sm-2" id="holder" drop-target>
+                <!--<div id="holder">
+                </div>-->
+                <p id="upload" class="hidden"><label>Drag & drop not supported, but you can still upload via this input field:<br><input type="file"></label></p>
+                <p id="filereader">File API & FileReader API not supported</p>
+                <p id="formdata">XHR2's FormData is not supported</p>
+                <p id="progress">XHR2's upload progress isn't supported</p>
+            </article>
+        </div>
+       
+    </div>
+    <!--
+    <article class="row">
+        <span id="holder" class="col-xl-12 center-block">
+        </span>
+        <p id="upload" class="hidden"><label>Drag & drop not supported, but you can still upload via this input field:<br><input type="file"></label></p>
+        <p id="filereader">File API & FileReader API not supported</p>
+        <p id="formdata">XHR2's FormData is not supported</p>
+        <p id="progress">XHR2's upload progress isn't supported</p>-->
+        <!--<p>Upload progress: <progress id="uploadprogress" min="0" max="100" value="0">0</progress></p>-->
+    <!--</article>-->
+
+    <script src="content/library.js"></script>
+    <script src="content/upload.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+</body>
+</html>
