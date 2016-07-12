@@ -77,7 +77,7 @@
     <!--</article>-->
 	
     <nav class="navbar navbar-default navbar-fixed-bottom topnav">
-        <div class="container topnav">@Model.Id</div>
+        <div class="container topnav h3">@Model.Id</div>
     </nav>
     <script src="content/library.js"></script>
     <script src="content/upload.js"></script>
