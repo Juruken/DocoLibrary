@@ -1,4 +1,5 @@
-﻿using Nancy;
+﻿using System;
+using Nancy;
 using Nancy.Conventions;
 using Nancy.TinyIoc;
 using DocoLibrary.LibraryStore;
@@ -35,14 +36,27 @@ namespace DocoLibrary.Nancy
         {
             base.ConfigureApplicationContainer(container);
 
-            //container.Register<ILibraryStore>(new LocalStore(AppDomain.CurrentDomain.BaseDirectory));
-            //container.Register<ILibraryDirectory>(new InMemoryDirectory());
+            ////RegisterLocal(container);
 
+            RegisterAws(container);
+        }
+
+        private void RegisterAws(TinyIoCContainer container)
+        {
             var dynamoDirectory = new DynamoDirectory(
-                m_DynamoDb, c_TableName, 
+                m_DynamoDb, c_TableName,
                 c_IdAttribute, c_TimestampAttribute, c_NameAttribute, c_UrlAttribute);
             container.Register<ILibraryDirectory>(dynamoDirectory);
             container.Register<ILibraryStore>(new S3Store(new Amazon.S3.AmazonS3Client(), c_BucketName));
+        }
+
+        private static void RegisterLocal(TinyIoCContainer container)
+        {
+            // Create a local store to use for the library store.
+            container.Register<ILibraryStore>(new LocalStore(AppDomain.CurrentDomain.BaseDirectory));
+
+            // Create an in memory directory for the library directory.
+            container.Register<ILibraryDirectory>(new InMemoryDirectory());
         }
 
         protected override void ConfigureConventions(NancyConventions conventions)

@@ -75,7 +75,10 @@
         <p id="progress">XHR2's upload progress isn't supported</p>-->
         <!--<p>Upload progress: <progress id="uploadprogress" min="0" max="100" value="0">0</progress></p>-->
     <!--</article>-->
-
+	
+    <nav class="navbar navbar-default navbar-fixed-bottom topnav">
+        <div class="container topnav">@Model.Id</div>
+    </nav>
     <script src="content/library.js"></script>
     <script src="content/upload.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
