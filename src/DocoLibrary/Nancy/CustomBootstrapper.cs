@@ -47,6 +47,7 @@ namespace DocoLibrary.Nancy
                 m_DynamoDb, c_TableName,
                 c_IdAttribute, c_TimestampAttribute, c_NameAttribute, c_UrlAttribute);
             container.Register<ILibraryDirectory>(dynamoDirectory);
+
             container.Register<ILibraryStore>(new S3Store(new Amazon.S3.AmazonS3Client(), c_BucketName));
         }
 
@@ -59,15 +60,10 @@ namespace DocoLibrary.Nancy
             container.Register<ILibraryDirectory>(new InMemoryDirectory());
         }
 
-        protected override void ConfigureConventions(NancyConventions conventions)
-        {
-            base.ConfigureConventions(conventions);
-
-            conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/uploads"));
-        }
-
         private void EnsureTableExists()
         {
+            // Define table schema. This includes keys and attributes.
+            // Not all attributes need to be defined, but all keys do.
             var keySchema = new List<KeySchemaElement>
             {
                 new KeySchemaElement(c_IdAttribute, KeyType.HASH),
@@ -80,6 +76,7 @@ namespace DocoLibrary.Nancy
                 new AttributeDefinition(c_TimestampAttribute, ScalarAttributeType.N)
             };
 
+            // Create table, including Name, Schema, and initial capacity.
             var createTableRequest = new CreateTableRequest(
                 c_TableName, 
                 keySchema,
@@ -96,12 +93,20 @@ namespace DocoLibrary.Nancy
                     throw;
             }
 
+            // Wait until the table creationi has finished.
             DescribeTableResponse response;
             do
             {
                 Thread.Sleep(300);
                 response = m_DynamoDb.DescribeTable(c_TableName);
             } while (response.Table.TableStatus == "CREATING");
+        }
+
+        protected override void ConfigureConventions(NancyConventions conventions)
+        {
+            base.ConfigureConventions(conventions);
+
+            conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/uploads"));
         }
     }
 }

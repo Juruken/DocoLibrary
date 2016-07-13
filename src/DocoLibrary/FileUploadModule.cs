@@ -25,7 +25,9 @@ namespace DocoLibrary
 
             Get["/list"] = _ =>
             {
+                // Get a listing of all the items in the library directory.
                 var result = m_LibraryDirectory.Items.OrderBy(i => i.Timestamp);
+
                 return Negotiate
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithModel(result);
@@ -33,11 +35,15 @@ namespace DocoLibrary
 
             Post["/upload", true] = async (x, ct) =>
             {
+                // Get the content of the upload.
                 var request = this.Bind<FileUploadRequest>();
 
+                // Save the uploaded item to the library store.
                 var libraryItem = await m_LibraryStore.SaveAsync(request.Title, request.File);
-                var response = m_LibraryDirectory.Add(libraryItem).OrderBy(i => i.Timestamp);
 
+                // Update our directory with information about the item (url & name)
+                var response = m_LibraryDirectory.Add(libraryItem).OrderBy(i => i.Timestamp);
+                
                 return Negotiate
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithModel(response);

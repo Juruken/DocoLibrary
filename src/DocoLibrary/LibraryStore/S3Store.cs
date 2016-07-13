@@ -7,6 +7,9 @@ using Amazon.S3.Transfer;
 
 namespace DocoLibrary.LibraryStore
 {
+    /// <summary>
+    /// Stores files in the cloud.
+    /// </summary>
     public class S3Store : ILibraryStore
     {
         private readonly IAmazonS3 m_AmazonS3;
@@ -21,10 +24,12 @@ namespace DocoLibrary.LibraryStore
 
         public async Task<LibraryItem> SaveAsync(string name, HttpFile file)
         {
+            // Create the file name
             var fExt = file.GetExtension();
             var id = Guid.NewGuid().ToString();
             var fName = id + fExt;
 
+            // Create an S3 upload request.
             var uploadRequest = new TransferUtilityUploadRequest
             {
                 BucketName = m_BucketName,
@@ -33,9 +38,11 @@ namespace DocoLibrary.LibraryStore
                 CannedACL = S3CannedACL.PublicRead
             };
 
+            // Upload to S3.
             var transferUtility = new TransferUtility(m_AmazonS3);
             await transferUtility.UploadAsync(uploadRequest);
 
+            // Return info about the item (URL & Name)
             return new LibraryItem
             {
                 Id = id,

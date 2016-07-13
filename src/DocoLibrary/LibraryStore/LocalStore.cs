@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DocoLibrary.LibraryStore
 {
+    /// <summary>
+    /// Stores files on the local file system.
+    /// </summary>
     public class LocalStore : ILibraryStore
     {
         private readonly string m_Path;
@@ -17,10 +20,12 @@ namespace DocoLibrary.LibraryStore
 
         public async Task<LibraryItem> SaveAsync(string name, HttpFile file)
         {
+            // Create the file name.
             var fExt = file.GetExtension();
             var id = Guid.NewGuid().ToString();
             var fName = id + fExt;
 
+            // Make sure the folder for the library exists.
             var originalDirectory = new DirectoryInfo(string.Format("{0}uploads", m_Path));
             var pathString = Path.Combine(originalDirectory.ToString(), "library");
 
@@ -29,6 +34,7 @@ namespace DocoLibrary.LibraryStore
 
             var path = string.Format("{0}\\{1}", pathString, fName);
 
+            // Write the uploaded file to disk.
             using (var fileStream = File.Create(path))
             {
                 var stream = file.Value;
@@ -36,6 +42,7 @@ namespace DocoLibrary.LibraryStore
                 await stream.CopyToAsync(fileStream);
             }
 
+            // Return info about the item (URL & Name)
             return new LibraryItem
             {
                 Id = id,
