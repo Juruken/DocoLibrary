@@ -42,8 +42,8 @@ function previewfile(file) {
 
         //reader.readAsDataURL(file);
     } else {
-        holder.innerHTML += '<p>Uploaded ' + file.name + ' ' + (file.size ? (file.size / 1024 | 0) + 'K' : '');
-        console.log(file);
+        //holder.innerHTML += '<p>Uploaded ' + file.name + ' ' + (file.size ? (file.size / 1024 | 0) + 'K' : '');
+        //console.log(file);
     }
 }
 
@@ -77,12 +77,12 @@ function readfiles(files) {
         };
 
         if (tests.progress) {
-            xhr.upload.onprogress = function (event) {
-                if (event.lengthComputable) {
-                    var complete = (event.loaded / event.total * 100 | 0);
-                    progress.value = progress.innerHTML = complete;
-                }
-            }
+            //xhr.upload.onprogress = function (event) {
+            //    if (event.lengthComputable) {
+            //        var complete = (event.loaded / event.total * 100 | 0);
+            //        progress.value = progress.innerHTML = complete;
+            //    }
+            //}
         }
 
         xhr.send(formData);

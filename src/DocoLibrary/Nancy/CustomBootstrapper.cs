@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Linq.Expressions;
 using Nancy;
 using Nancy.Conventions;
+using Nancy.Responses;
 using Nancy.TinyIoc;
 using DocoLibrary.LibraryStore;
 using DocoLibrary.LibraryDirectory;
@@ -36,9 +39,18 @@ namespace DocoLibrary.Nancy
         {
             base.ConfigureApplicationContainer(container);
 
-            ////RegisterLocal(container);
+            RegisterLocal(container);
 
-            RegisterAws(container);
+            ////RegisterAws(container);
+        }
+
+        private static void RegisterLocal(TinyIoCContainer container)
+        {
+            // Create a local store to use for the library store.
+            container.Register<ILibraryStore>(new LocalStore("C:\\"));
+
+            // Create an in memory directory for the library directory.
+            container.Register<ILibraryDirectory>(new InMemoryDirectory());
         }
 
         private void RegisterAws(TinyIoCContainer container)
@@ -49,15 +61,6 @@ namespace DocoLibrary.Nancy
             container.Register<ILibraryDirectory>(dynamoDirectory);
 
             container.Register<ILibraryStore>(new S3Store(new Amazon.S3.AmazonS3Client(), c_BucketName));
-        }
-
-        private static void RegisterLocal(TinyIoCContainer container)
-        {
-            // Create a local store to use for the library store.
-            container.Register<ILibraryStore>(new LocalStore(AppDomain.CurrentDomain.BaseDirectory));
-
-            // Create an in memory directory for the library directory.
-            container.Register<ILibraryDirectory>(new InMemoryDirectory());
         }
 
         private void EnsureTableExists()
@@ -106,7 +109,38 @@ namespace DocoLibrary.Nancy
         {
             base.ConfigureConventions(conventions);
 
-            conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/uploads"));
+            conventions.StaticContentsConventions.Add((context, s) =>
+            {
+                var requestPath = context.Request.Path;
+                if (!requestPath.StartsWith("/uploads", StringComparison.InvariantCultureIgnoreCase))
+                    return null;
+
+                var filePath = string.Format("c:{0}", requestPath.Replace('/', '\\'));
+                var mimeType = MimeTypes.GetMimeType(filePath);
+
+                try
+                {
+                    var fileStream = new FileStream(filePath, FileMode.Open);
+                    {
+                        return new Response
+                        {
+                            ContentType = mimeType,
+                            StatusCode = HttpStatusCode.OK,
+                            Contents = stream =>
+                            {
+                                fileStream.CopyTo(stream);
+                                fileStream.Close();
+                            }
+                        };
+                    }
+                }
+                catch
+                {
+                    return new Response {StatusCode = HttpStatusCode.NotFound};
+                }
+            });
+
+            //conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/uploads", "c:\\uploads"));
         }
     }
 }
